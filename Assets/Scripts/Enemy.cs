@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using TMPro;
 
 public class Enemy : MonoBehaviour
 {
@@ -10,60 +9,63 @@ public class Enemy : MonoBehaviour
     {
         Patrol,
         Attack,
+        Chase,
     }
 
-
     public Transform player;
-    private NavMeshAgent agent;
-    //public GameObject deathText;
-
     public Transform[] points;
-    private NavMeshAgent nav;
-    private int destPoint;
-    float sightRange, attackRange;
-    bool playerInSight, playerInAttackRange;
-    public LayerMask playerLayer;
+    public float patrolSpeed = 2f;
+    public float chaseSpeed = 5f;
+    public float attackRange = 2f;
+    public int damage = 10;
+    public int distance = 50;
 
-    States state;
+    private NavMeshAgent nav;
+    private int destPoint = 0;
+    private States state;
+    bool playerInRange;
+    bool attack;
 
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-
+        nav = GetComponent<NavMeshAgent>();
         state = States.Patrol;
+        GoToNextPoint();
+        playerInRange = false;
+        attack = false;
     }
 
     void Update()
     {
-        playerInSight = Physics.CheckSphere(transform.position, sightRange, playerLayer);
-        playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
+        if (state == States.Patrol)
+        {
+            Patrol();
+        }
 
-        Chase();
         if (state == States.Attack)
         {
-            //execute attack code
-
-            //agent.destination = player.position;
-
             Attack();
         }
 
-        if (state == States.Patrol)
+        if (state == States.Chase)
         {
-            // check for player nearby
-            if (!nav.pathPending && nav.remainingDistance < 0.5f && !playerInSight && !playerInAttackRange)
-            {
-                GoToNextPoint();
-            }
-
+            Chase();
         }
+
     }
 
-    void OnTriggerEnter(Collider other)
+    void Patrol()
     {
-        if(other.CompareTag("Player"))
+        nav.speed = patrolSpeed;
+
+        if (!nav.pathPending && nav.remainingDistance < 0.5f)
         {
-            state = States.Attack;
+            GoToNextPoint();
+        }
+
+        if (playerInRange)
+        {
+            state = States.Chase;
         }
     }
 
@@ -74,18 +76,47 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+
         nav.destination = points[destPoint].position;
         destPoint = (destPoint + 1) % points.Length;
     }
 
     void Chase()
     {
-        nav.SetDestination(player.transform.position);
+        nav.speed = chaseSpeed;
+        nav.SetDestination(player.position);
+
+        if(Vector3.Distance(transform.position, player.position) < distance)
+        {
+            attack = true;
+        }
+        //check for player being close
+        //if true, change to attack
     }
 
     void Attack()
     {
-
+        if (attack == true)
+        {
+            Debug.Log("Attaked player");
+        }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            //Chase();
+            playerInRange = true;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInRange = false;
+
+        }
+    }
 }

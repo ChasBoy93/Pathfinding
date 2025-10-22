@@ -4096,8 +4096,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1.3767328}
-  m_Center: {x: 0, y: 0.56999993, z: 0.18836446}
+  m_Size: {x: 1.9145033, y: 1, z: 7.0701795}
+  m_Center: {x: -0.057088174, y: 0.56999993, z: -0.069758736}
 --- !u!114 &1414887020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4116,9 +4116,10 @@ MonoBehaviour:
   - {fileID: 1316607005}
   - {fileID: 491787101}
   - {fileID: 890963728}
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 0
+  patrolSpeed: 2
+  chaseSpeed: 5
+  attackRange: 0
+  damage: 10
 --- !u!1 &1447685229
 GameObject:
   m_ObjectHideFlags: 0
